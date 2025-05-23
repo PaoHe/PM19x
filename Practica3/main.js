@@ -1,4 +1,4 @@
-import { restar } from "./utils";
+const { restar } = require('./utils');
 
 console.log("100 - 50 = ", restar(100, 50)); 
 console.log("50 - 10 = ", restar(50, 10));

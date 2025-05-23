@@ -2,4 +2,4 @@ function restar (a,b){
     return a-b;
 }
 
-export { restar};
+module.exports = { restar};
