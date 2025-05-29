@@ -16,3 +16,5 @@ async function obtenerDatos() {
 }
 
 obtenerDatos();
+console.log("Iniciando la petición a la API...");
+console.log("Peticion finalizada");
