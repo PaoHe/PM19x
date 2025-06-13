@@ -5,14 +5,15 @@ import { StyleSheet, Text, View, Button } from 'react-native';
 import React, {useState } from 'react';
 
 
-const Texto=()=>{
+const Texto=({style})=>{
   const[contenido, setContenido]=useState('Hola Mundo React')
   const actualizarTexto=()=> {setContenido('Estado Actalizado')}
   return(
-    <Text onPress={actualizarTexto}>{contenido}</Text>
+    <Text style={[styles.text,style]} onPress={actualizarTexto}>{contenido}</Text>
 
   )
 }
+
 
 //Zona 2: Main
 export default function App() {
@@ -20,11 +21,11 @@ export default function App() {
     <View style={styles.container}>
       <StatusBar style="auto" />
 
-      <Texto></Texto>
-      <Texto> </Texto>
-      <Texto></Texto>
+      <Texto style={styles.black}></Texto>
+      <Texto style={styles.gray}></Texto>
+      <Texto style={styles.purple}></Texto>
 
-      <Button title= "Presioname!"></Button>
+
 
     </View>
   );
@@ -36,7 +37,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
+    alignItems: 'base-line',
     justifyContent: 'center',
+    flexDirection: 'column',
   },
+  text:{
+    color: 'pink',
+    fontSize: 25,
+
+    },
+
+    black: {backgroundColor: 'black'},
+    gray: {backgroundColor: 'gray'},
+    purple: {backgroundColor: 'purple'},
+
 });
+
+
