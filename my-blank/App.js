@@ -1,82 +1,98 @@
-// Zona 1: Importaciones
-import React, { useState } from 'react';
+//Zona 1: importaciones 
+
 import { StatusBar } from 'expo-status-bar';
-import { Modal, View, Text, Button, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { StyleSheet, Text, View, Switch } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-// Zona 2: Componente Modal 
-const ModalContenido = ({ visible, cerrar }) => {
-  return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={cerrar}
-    >
-      <View style={styles.modalBackground}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalText}>¡Hola! Este es un Modal 🧾</Text>
-          <Button title="Cerrar" onPress={cerrar} />
-        </View>
-      </View>
-    </Modal>
-  );
-};
 
-// Zona 3: Componente 
+//Zona 2: Main 
+
 export default function App() {
-  const [modalVisible, setModalVisible] = useState(false);
+
+const[activarSwitch, setActivarSwich] = useState (false);
+const[modoOscuro, setModoOscuro] = useState (false);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaProvider>
+      <SafeAreaView style = {[styles.contenedor, modoOscuro && styles.fondoOscuro ]}>
 
-      <StatusBar style="auto" />
-      <Text style={styles.title}>Mostrar Modal</Text>
+        {/*Aqui van los Componentes*/}
+        <Text style = {[styles.titulo, modoOscuro && styles.textoClaro]}>
+          Practica con Switchs 
+        </Text>
 
-      <Button title="Mostrar Modal" onPress={() => setModalVisible(true)} />
+        <View style={[styles.opcion]}>
+          <Text style={[styles.etiqueta, modoOscuro && styles.textoClaro]}> 
+            Activar Switch 2
+          </Text>
 
-      <ModalContenido
-        visible={modalVisible}
-        cerrar={() => setModalVisible(false)}
-      />
-    </View>
+          <Switch 
+          value={activarSwitch}
+          onValueChange={setActivarSwich}
+          trackColor={{false:'#ccc',true: '#4caf50'}}
+          thumbColor={activarSwitch? '#ffffff': '#99999'}>
+          </Switch>
+        </View>
+
+        <View style={[styles.opcion]}>
+          <Text style={[styles.etiqueta, modoOscuro && styles.textoClaro]}> 
+            Modo Oscuro 
+          </Text>
+
+          <Switch 
+          value={modoOscuro}
+          onValueChange={setModoOscuro}
+          disabled={activarSwitch}
+          trackColor={
+            activarSwitch
+            ? {false: '#ff9999', true: '#ff3b30'}
+              :{false: ' #cc', true: '#4caf50'}
+            }
+          thumbColor={
+            activarSwitch
+          ? '#ff3b30'
+          : modoOscuro
+          ?'#ffffff'
+          :'#999999'
+        }>
+          </Switch>
+        </View>
+
+      </SafeAreaView>
+    </SafeAreaProvider>
+
   );
 }
 
-// Zona 4: Estilos
+//Zona 3: Estilos 
+
 const styles = StyleSheet.create({
-  container: {
+  contenedor: {
     flex: 1,
-    backgroundColor: '#EAF2F8',
-    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 30,
     justifyContent: 'center',
-    padding: 20,
   },
-  title: {
-    fontSize: 22,
-    marginBottom: 20,
-    fontWeight: 'bold',
+  titulo:{
+    fontSize: 24,
+    marginBlock: 40,
+    texteAlign: 'center',
+    fontWeight: 'boid',
   },
-  modalBackground: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 30,
+  fondoOscuro:{
+    backgroundColor: "#1a1a1a",
   },
-  modalContainer: {
-    backgroundColor: 'white',
-    borderRadius: 15,
-    padding: 25,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
+  textoClaro: {
+    color: '#ffffff',
   },
-  modalText: {
+  opcion:{
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: '30',
+    alignItems: 'center', 
+  },
+  etiqueta:{
     fontSize: 18,
-    marginBottom: 15,
-    textAlign: 'center',
-  },
+  }
 });
