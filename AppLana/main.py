@@ -1,58 +1,44 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional
-from datetime import datetime
+from fastapi import FastAPI, HTTPException, Depends
+from sqlalchemy.orm import Session
+from database import SessionLocal, engine
+import models, schemas, crud
 
-app = FastAPI(title="LANA APP API", description="API CRUD de transacciones", version="1.0")
+models.Base.metadata.create_all(bind=engine)
 
-transacciones = []
-contador_id = 1
+app = FastAPI(title="LANA API", description="API CRUD con base de datos", version="1.0")
 
-class TransaccionBase(BaseModel):
-    tipo: str  
-    monto: float
-    categoria: str
-    descripcion: Optional[str] = None
-    fecha: Optional[datetime] = datetime.utcnow()
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-class TransaccionCreate(TransaccionBase):
-    pass
+@app.post("/transactions", response_model=schemas.Transaction)
+def crear_transaccion(transaccion: schemas.TransactionCreate, db: Session = Depends(get_db)):
+    return crud.create_transaction(db, transaccion)
 
-class Transaccion(TransaccionBase):
-    id: int
+@app.get("/transactions", response_model=list[schemas.Transaction])
+def listar_transacciones(db: Session = Depends(get_db)):
+    return crud.get_transactions(db)
 
+@app.get("/transactions/{transaction_id}", response_model=schemas.Transaction)
+def obtener_transaccion(transaction_id: int, db: Session = Depends(get_db)):
+    transaccion = crud.get_transaction(db, transaction_id)
+    if not transaccion:
+        raise HTTPException(status_code=404, detail="Transacción no encontrada")
+    return transaccion
 
-@app.post("/transactions", response_model=Transaccion)
-def crear_transaccion(transaccion: TransaccionCreate):
-    global contador_id
-    nueva = Transaccion(id=contador_id, **transaccion.dict())
-    transacciones.append(nueva)
-    contador_id += 1
-    return nueva
+@app.put("/transactions/{transaction_id}", response_model=schemas.Transaction)
+def actualizar_transaccion(transaction_id: int, data: schemas.TransactionCreate, db: Session = Depends(get_db)):
+    actualizada = crud.update_transaction(db, transaction_id, data)
+    if not actualizada:
+        raise HTTPException(status_code=404, detail="Transacción no encontrada")
+    return actualizada
 
-@app.get("/transactions", response_model=List[Transaccion])
-def listar_transacciones():
-    return transacciones
-
-@app.get("/transactions/{id}", response_model=Transaccion)
-def obtener_transaccion(id: int):
-    for t in transacciones:
-        if t.id == id:
-            return t
-    raise HTTPException(status_code=404, detail="Transacción no encontrada")
-
-@app.put("/transactions/{id}", response_model=Transaccion)
-def actualizar_transaccion(id: int, actualizada: TransaccionCreate):
-    for i, t in enumerate(transacciones):
-        if t.id == id:
-            transacciones[i] = Transaccion(id=id, **actualizada.dict())
-            return transacciones[i]
-    raise HTTPException(status_code=404, detail="Transacción no encontrada")
-
-@app.delete("/transactions/{id}")
-def eliminar_transaccion(id: int):
-    for i, t in enumerate(transacciones):
-        if t.id == id:
-            transacciones.pop(i)
-            return {"mensaje": "Transacción eliminada"}
-    raise HTTPException(status_code=404, detail="Transacción no encontrada")
+@app.delete("/transactions/{transaction_id}")
+def eliminar_transaccion(transaction_id: int, db: Session = Depends(get_db)):
+    eliminada = crud.delete_transaction(db, transaction_id)
+    if not eliminada:
+        raise HTTPException(status_code=404, detail="Transacción no encontrada")
+    return {"mensaje": "Transacción eliminada"}
